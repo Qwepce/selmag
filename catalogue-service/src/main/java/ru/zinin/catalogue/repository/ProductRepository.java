@@ -1,6 +1,6 @@
-package ru.zinin.manager_app.repository;
+package ru.zinin.catalogue.repository;
 
-import ru.zinin.manager_app.entity.Product;
+import ru.zinin.catalogue.entity.Product;
 
 import java.util.List;
 import java.util.Optional;

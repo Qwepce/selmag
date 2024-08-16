@@ -1,9 +1,9 @@
-package ru.zinin.manager_app.service;
+package ru.zinin.catalogue.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.zinin.manager_app.entity.Product;
-import ru.zinin.manager_app.repository.ProductRepository;
+import ru.zinin.catalogue.entity.Product;
+import ru.zinin.catalogue.repository.ProductRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;

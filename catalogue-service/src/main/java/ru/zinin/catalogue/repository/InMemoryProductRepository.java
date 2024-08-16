@@ -1,7 +1,7 @@
-package ru.zinin.manager_app.repository;
+package ru.zinin.catalogue.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.zinin.manager_app.entity.Product;
+import ru.zinin.catalogue.entity.Product;
 
 import java.util.*;
 

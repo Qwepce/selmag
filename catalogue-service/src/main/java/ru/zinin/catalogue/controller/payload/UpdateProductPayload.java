@@ -1,4 +1,4 @@
-package ru.zinin.manager_app.controller.payload;
+package ru.zinin.catalogue.controller.payload;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

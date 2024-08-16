@@ -1,4 +1,4 @@
-package ru.zinin.manager_app.entity;
+package ru.zinin.catalogue.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
