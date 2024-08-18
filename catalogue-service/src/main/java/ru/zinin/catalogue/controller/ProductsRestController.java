@@ -12,7 +12,6 @@ import ru.zinin.catalogue.controller.payload.NewProductPayload;
 import ru.zinin.catalogue.entity.Product;
 import ru.zinin.catalogue.service.ProductService;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,10 +22,10 @@ public class ProductsRestController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> findAllProducts() {
+    public ResponseEntity<Iterable<Product>> findAllProducts(@RequestParam(value = "filter", required = false) String filter) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(this.productService.findAllProducts());
+                .body(this.productService.findAllProducts(filter));
     }
 
     @PostMapping
