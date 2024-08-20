@@ -1,6 +1,7 @@
 package ru.zinin.manager.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,9 +10,12 @@ import ru.zinin.manager.client.ProductsRestClient;
 import ru.zinin.manager.controller.payload.NewProductPayload;
 import ru.zinin.manager.entity.Product;
 
+import java.security.Principal;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("catalogue/products")
+@Slf4j
 public class ProductsController {
 
     private final ProductsRestClient productsRestClient;
