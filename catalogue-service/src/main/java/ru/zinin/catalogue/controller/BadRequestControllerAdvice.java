@@ -25,8 +25,7 @@ public class BadRequestControllerAdvice {
                         this.messageSource.getMessage("errors.400.title", new Object[0],
                                 "errors.400.title", locale));
         problemDetail.setProperty("errors",
-                exception.getAllErrors()
-                        .stream()
+                exception.getAllErrors().stream()
                         .map(ObjectError::getDefaultMessage)
                         .toList());
 

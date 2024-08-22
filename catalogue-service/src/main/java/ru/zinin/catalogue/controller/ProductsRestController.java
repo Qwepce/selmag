@@ -45,7 +45,6 @@ public class ProductsRestController {
             return ResponseEntity.created(uriBuilder
                             .replacePath("/catalogue-api/products/{productId}")
                             .build(Map.of("productId", product.getId())))
-                    .contentType(MediaType.APPLICATION_JSON)
                     .body(product);
         }
     }

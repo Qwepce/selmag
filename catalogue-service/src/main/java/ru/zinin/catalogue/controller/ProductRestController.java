@@ -16,6 +16,7 @@ import ru.zinin.catalogue.service.ProductService;
 
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,8 +35,8 @@ public class ProductRestController {
     }
 
     @GetMapping
-    public ResponseEntity<Product> findProduct(@ModelAttribute("product") Product product) {
-        return ResponseEntity.of(productService.findProduct(product.getId()));
+    public Product findProduct(@ModelAttribute("product") Product product) {
+        return product;
     }
 
     @PatchMapping

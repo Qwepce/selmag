@@ -1,7 +1,9 @@
 package ru.zinin.manager.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +12,7 @@ import ru.zinin.manager.client.ProductsRestClient;
 import ru.zinin.manager.controller.payload.NewProductPayload;
 import ru.zinin.manager.entity.Product;
 
+import java.net.http.HttpResponse;
 import java.security.Principal;
 
 @Controller
@@ -32,14 +35,15 @@ public class ProductsController {
         return "catalogue/products/new_product";
     }
 
-    @PostMapping
-    public String createProduct(NewProductPayload payload, Model model) {
+    @PostMapping("create")
+    public String createProduct(NewProductPayload payload, Model model, HttpServletResponse response) {
 
         try {
             Product product = this.productsRestClient.createProduct(payload.title(), payload.details());
 
             return "redirect:/catalogue/products/%d".formatted(product.id());
         } catch (BadRequestException exception) {
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
             model.addAttribute("payload", payload);
             model.addAttribute("errors", exception.getErrors());
             return "catalogue/products/new_product";
