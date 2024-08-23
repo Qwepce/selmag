@@ -16,7 +16,7 @@
         <li data-th-each="error : ${errors}" data-th-text="${error}"></li>
     </ul>
 </div>
-<form method="post" data-th-action="@{/catalogue/products}">
+<form method="post" data-th-action="@{/catalogue/products/create}">
     <label>
         Название: <br>
         <input type="text" name="title" data-th-value="${payload?.title()}">
