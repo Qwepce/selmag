@@ -1,12 +1,14 @@
 package ru.zinin.feedback.repository;
 
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import ru.zinin.feedback.entity.ProductReview;
 
-public interface ProductReviewRepository {
+import java.util.UUID;
 
-    Mono<ProductReview> saveProductReview(ProductReview productReview);
+public interface ProductReviewRepository extends ReactiveCrudRepository<ProductReview, UUID> {
 
+    @Query("{'productId': ?0}") // указывается номер аргумента в методе, начинается с нуля
     Flux<ProductReview> findAllByProductId(Integer productId);
 }

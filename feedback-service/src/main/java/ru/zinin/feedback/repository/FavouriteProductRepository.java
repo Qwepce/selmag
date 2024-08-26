@@ -1,16 +1,18 @@
 package ru.zinin.feedback.repository;
 
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.zinin.feedback.entity.FavouriteProduct;
 
-public interface FavouriteProductRepository {
+import java.util.UUID;
 
-    Mono<FavouriteProduct> save(FavouriteProduct favouriteProduct);
+public interface FavouriteProductRepository extends
+        ReactiveCrudRepository<FavouriteProduct, UUID> {
 
-    Mono<Void> deleteByProductId(Integer productId);
+    Flux<FavouriteProduct> findAllByUserId(String userId);
 
-    Mono<FavouriteProduct> findByProductId(Integer productId);
+    Mono<Void> deleteByProductIdAndUserId(Integer productId, String userId);
 
-    Flux<FavouriteProduct> findAll();
+    Mono<FavouriteProduct> findByProductIdAndUserId(Integer productId, String userId);
 }

@@ -2,9 +2,14 @@ package ru.zinin.customer.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import ru.zinin.customer.client.FavouriteProductsClient;
 import ru.zinin.customer.client.ProductReviewsClient;
@@ -30,9 +35,9 @@ public class ProductController {
     @ModelAttribute(value = "product", binding = false)
     public Mono<Product> loadProduct(@PathVariable("productId") Integer productId) {
         return this.productsClient.findProduct(productId)
-                .switchIfEmpty(Mono.error(new NoSuchElementException(
-                        "customer.products.error.not_found"
-                )));
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.error(new NoSuchElementException("customer.products.error.not_found"))
+                ));
     }
 
     @GetMapping
@@ -53,11 +58,11 @@ public class ProductController {
         return productMono
                 .map(Product::id)
                 .flatMap(productId -> this.favouriteProductsClient.addProductToFavourites(productId)
-                        .thenReturn("redirect:/customer/products/{productId}".formatted(productId))
+                        .thenReturn("redirect:/customer/products/%d".formatted(productId))
                         .onErrorResume(exception -> {
-                            log.info(exception.getMessage(), exception);
-                            return Mono.just("redirect:/customer/products/{productId}".formatted(productId));
-                        }
+                                    log.info(exception.getMessage(), exception);
+                                    return Mono.just("redirect:/customer/products/%d".formatted(productId));
+                                }
                         ));
     }
 
@@ -66,20 +71,22 @@ public class ProductController {
         return productMono
                 .map(Product::id)
                 .flatMap(productId -> this.favouriteProductsClient.removeProductFromFavourites(productId)
-                        .thenReturn("redirect:/customer/products/{productId}".formatted(productId)));
+                        .thenReturn("redirect:/customer/products/%d".formatted(productId)));
     }
 
     @PostMapping("create-review")
     public Mono<String> createReview(@PathVariable("productId") Integer productId,
                                      NewProductReviewPayload payload,
-                                     Model model) {
+                                     Model model,
+                                     ServerHttpResponse response) {
 
         return this.productReviewsClient.createProductReview(productId, payload.rating(), payload.review())
-                .thenReturn("redirect:/customer/products/{productId}".formatted(productId))
+                .thenReturn("redirect:/customer/products/%d".formatted(productId))
                 .onErrorResume(ClientBadRequestException.class, exception -> {
                     model.addAttribute("inFavourite", false);
                     model.addAttribute("payload", payload);
                     model.addAttribute("errors", exception.getErrors());
+                    response.setStatusCode(HttpStatus.BAD_REQUEST);
                     return this.favouriteProductsClient.findFavouriteProductByProductId(productId)
                             .doOnNext(favouriteProduct -> model.addAttribute("inFavourite", true))
                             .thenReturn("customer/products/product");
@@ -91,5 +98,12 @@ public class ProductController {
         model.addAttribute("error", exception.getMessage());
 
         return "errors/404";
+    }
+
+    @ModelAttribute()
+    public Mono<CsrfToken> loadCsrfToken(ServerWebExchange exchange) {
+        return exchange.<Mono<CsrfToken>>getAttribute(CsrfToken.class.getName())
+                .doOnSuccess(token -> exchange.getAttributes()
+                        .put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, token));
     }
 }

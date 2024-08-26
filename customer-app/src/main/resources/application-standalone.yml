@@ -6,3 +6,18 @@ selmag:
       uri: http://localhost:8081
     feedback:
       uri: http://localhost:8084
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8082/realms/selmag
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: customer-app
+            client-secret: buHLPOjAd87IS3SWIInDCOQLptDCVhHp
+            scope:
+              - openid
+              - view_catalogue
