@@ -21,7 +21,7 @@ public class ProductsController {
     private final FavouriteProductsClient favouriteProductsClient;
 
     @GetMapping("list")
-    public Mono<String> getProductsList(Model model, @RequestParam(name = "filter", required = false) String filter) {
+    public Mono<String> getProductsListPage(Model model, @RequestParam(name = "filter", required = false) String filter) {
 
         model.addAttribute("filter", filter);
 
