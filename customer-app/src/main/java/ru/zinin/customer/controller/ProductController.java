@@ -41,16 +41,16 @@ public class ProductController {
     }
 
     @GetMapping
-    public Mono<String> getProductPage(@PathVariable("productId") Integer productId, Model model) {
-
-        model.addAttribute(model.addAttribute("inFavourite", false));
-
-        return this.productReviewsClient.findProductReviewsByProductId(productId)
-                .collectList()
-                .doOnNext(productReviews -> model.addAttribute("reviews", productReviews))
-                .then(this.favouriteProductsClient.findFavouriteProductByProductId(productId)
-                        .doOnNext(favouriteProduct -> model.addAttribute("inFavourite", true)))
-                .thenReturn("customer/products/product");
+    public Mono<String> getProductPage(@ModelAttribute("product") Mono<Product> productMono, Model model) {
+        model.addAttribute("inFavourite", false);
+        return productMono.flatMap(
+                product -> this.productReviewsClient.findProductReviewsByProductId(product.id())
+                        .collectList()
+                        .doOnNext(productReviews -> model.addAttribute("reviews", productReviews))
+                        .then(this.favouriteProductsClient.findFavouriteProductByProductId(product.id())
+                                .doOnNext(favouriteProduct -> model.addAttribute("inFavourite", true)))
+                        .thenReturn("customer/products/product")
+        );
     }
 
     @PostMapping("add-to-favourites")
@@ -94,8 +94,10 @@ public class ProductController {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public String handleNoSuchElementException(NoSuchElementException exception, Model model) {
+    public String handleNoSuchElementException(NoSuchElementException exception, Model model,
+                                               ServerHttpResponse response) {
         model.addAttribute("error", exception.getMessage());
+        response.setStatusCode(HttpStatus.NOT_FOUND);
 
         return "errors/404";
     }

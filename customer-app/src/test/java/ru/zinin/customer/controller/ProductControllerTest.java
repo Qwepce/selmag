@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.ui.ConcurrentModel;
 import reactor.core.publisher.Flux;
@@ -40,23 +41,6 @@ class ProductControllerTest {
 
     @InjectMocks
     ProductController controller;
-
-    @Test
-    void handleNoSuchElementException_ReturnsErrors404Page() {
-        //given
-        var exception = new NoSuchElementException("Товар не найден");
-        var model = new ConcurrentModel();
-
-        //when
-        var result = this.controller.handleNoSuchElementException(exception, model);
-
-        //then
-        assertEquals("errors/404", result);
-        assertEquals("Товар не найден", model.getAttribute("error"));
-        verifyNoInteractions(this.favouriteProductsClient);
-        verifyNoInteractions(this.productReviewsClient);
-        verifyNoInteractions(this.productsClient);
-    }
 
     @Test
     void loadProduct_ProductExists_ReturnsNotEmptyMono() {
@@ -106,7 +90,8 @@ class ProductControllerTest {
         doReturn(Mono.just(favouriteProduct)).when(this.favouriteProductsClient).findFavouriteProductByProductId(1);
 
         //when
-        StepVerifier.create(this.controller.getProductPage(1, model))
+        StepVerifier.create(this.controller.getProductPage(
+                Mono.just(new Product(1, "Товар №1", "Описание товара №1")), model))
                 //then
                 .expectNext("customer/products/product")
                 .verifyComplete();
@@ -216,5 +201,22 @@ class ProductControllerTest {
         verifyNoInteractions(this.productsClient);
     }
 
+    @Test
+    void handleNoSuchElementException_ReturnsErrors404Page() {
+        //given
+        var exception = new NoSuchElementException("Товар не найден");
+        var model = new ConcurrentModel();
+        var response = new MockServerHttpResponse();
 
+        //when
+        var result = this.controller.handleNoSuchElementException(exception, model, response);
+
+        //then
+        assertEquals("errors/404", result);
+        assertEquals("Товар не найден", model.getAttribute("error"));
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verifyNoInteractions(this.favouriteProductsClient);
+        verifyNoInteractions(this.productReviewsClient);
+        verifyNoInteractions(this.productsClient);
+    }
 }
