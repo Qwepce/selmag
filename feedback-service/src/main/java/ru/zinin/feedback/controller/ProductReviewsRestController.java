@@ -35,12 +35,9 @@ public class ProductReviewsRestController {
 
     private final ProductReviewsService productReviewsService;
 
-    private final ReactiveMongoTemplate mongoTemplate;
-
     @GetMapping("by-product-id/{productId:\\d+}")
     public Flux<ProductReview> findProductReviewsByProductId(@PathVariable("productId") Integer productId) {
-        return this.mongoTemplate
-                .find(query(where("productId").is(productId)), ProductReview.class);
+        return this.productReviewsService.findProductReviewsByProduct(productId);
     }
 
     @PostMapping

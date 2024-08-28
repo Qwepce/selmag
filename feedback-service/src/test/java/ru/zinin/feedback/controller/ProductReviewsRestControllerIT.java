@@ -98,6 +98,21 @@ class ProductReviewsRestControllerIT {
                         ]""");
     }
 
+
+    @Test
+    void findProductReviewsByProductId_UserIsNotAuthenticated_ReturnsNotAuthorized() {
+        //given
+
+        //when
+
+        //then
+        this.webTestClient
+                .get()
+                .uri("/feedback-api/product-reviews/by-product-id/1")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
     @Test
     void createProductReview_RequestIsValid_ReturnsCreatedProductReview() throws Exception {
         //given
@@ -161,16 +176,23 @@ class ProductReviewsRestControllerIT {
     }
 
     @Test
-    void findProductReviewsByProductId_UserIsNotAuthenticated_ReturnsNotAuthorized() {
+    void createProductReview_UserIsNotAuthenticated_ReturnsNotAuthorized() {
         //given
 
         //when
-
-        //then
         this.webTestClient
-                .get()
-                .uri("/feedback-api/product-reviews/by-product-id/1")
+                .post()
+                .uri("/feedback-api/product-reviews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("""
+                        {
+                            "productId": 1,
+                            "rating": 5,
+                            "review": "Отличный товар!"
+                        }
+                        """)
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED);
+                //then
+                .expectStatus().isUnauthorized();
     }
 }

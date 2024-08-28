@@ -45,7 +45,7 @@ public class FavouriteProductsRestController {
                         .addProductToFavourites(tuple.getT2().productId(), tuple.getT1().getToken().getSubject()))
                 .map(favouriteProduct -> ResponseEntity
                         .created(uriComponentsBuilder.replacePath("feedback-api/favourite-products/{id}")
-                                .build(favouriteProduct.getProductId()))
+                                .build(favouriteProduct.getId()))
                         .body(favouriteProduct));
     }
 
