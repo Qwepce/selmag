@@ -2,7 +2,7 @@
 
 ## Профили Spring
 
-- `standalone` - `catalogue-service`, `feedback-service`, `customer-app` и `manager-app` 
+- `standalone` - для запуска `catalogue-service`, `feedback-service`, `customer-app` и `manager-app` 
 
 ## Инфраструктура
 
