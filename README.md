@@ -23,7 +23,7 @@ docker run --name selmag-keycloak -p 8082:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLO
 Запуск в Docker:
 
 ```shell
-docker run --name selmag-catalogue -p 5432:5432 -e POSTGRES_USER=catalogue -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=admin postgres:16
+docker run --name selmag-catalogue -p 5432:5432 -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=catalogue postgres:16
 ```
 
 ### MongoDB
