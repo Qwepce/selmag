@@ -4,13 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
@@ -19,6 +22,10 @@ import ru.zinin.feedback.entity.ProductReview;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureWebTestClient
 @Slf4j
+@AutoConfigureRestDocs
+@ExtendWith(RestDocumentationExtension.class)
 class ProductReviewsRestControllerIT {
 
     @Autowired
@@ -141,7 +150,26 @@ class ProductReviewsRestControllerIT {
                             "rating": 5,
                             "review": "На пятерочку!",
                             "userId": "user-tester"
-                        }""").jsonPath("$.id").exists();
+                        }""").jsonPath("$.id").exists()
+                .consumeWith(document("feedback/product_reviews/create_product_review",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("productId").type("int").description("Идентификатор товара"),
+                                fieldWithPath("rating").type("int").description("Оценка"),
+                                fieldWithPath("review").type("String").description("Отзыв о товаре")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").type("UUID").description("Идентификатор отзыва"),
+                                fieldWithPath("productId").type("int").description("Идентификатор товара"),
+                                fieldWithPath("rating").type("int").description("Оценка"),
+                                fieldWithPath("review").type("String").description("Отзыв о товаре"),
+                                fieldWithPath("userId").type("String").description("Идентификатор пользователя")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION)
+                                        .description("Ссылка на созданный отзыв о товаре")
+                        )));
     }
 
     @Test

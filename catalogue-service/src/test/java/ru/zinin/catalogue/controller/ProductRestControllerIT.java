@@ -1,10 +1,14 @@
 package ru.zinin.catalogue.controller;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.operation.preprocess.HeadersModifyingOperationPreprocessor;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -13,13 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
 @SpringBootTest
-@AutoConfigureMockMvc(printOnlyOnFailure = false)
+@AutoConfigureMockMvc
+@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs
 class ProductRestControllerIT {
 
     @Autowired
@@ -35,6 +47,7 @@ class ProductRestControllerIT {
         //when
         this.mockMvc.perform(requestBuilder)
                 //then
+                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
@@ -44,7 +57,15 @@ class ProductRestControllerIT {
                                     "title": "Товар №1",
                                     "details": "Описание товара №1"
                                 }""")
-                );
+                )
+                .andDo(document("catalogue/products/find_all",
+                        preprocessResponse(prettyPrint(), new HeadersModifyingOperationPreprocessor()
+                                .remove("Vary")),
+                        responseFields(
+                                fieldWithPath("id").description("Идентификатор товара").type("int"),
+                                fieldWithPath("title").description("Название товара").type("String"),
+                                fieldWithPath("details").description("Описание товара").type("String")
+                        )));
     }
 
     @Test

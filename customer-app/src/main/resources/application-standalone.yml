@@ -17,7 +17,7 @@ spring:
         registration:
           keycloak:
             client-id: customer-app
-            client-secret: buHLPOjAd87IS3SWIInDCOQLptDCVhHp
+            client-secret: JxeE8d0V4FIgxSoxM8iWDr3w56vB3oPO
             scope:
               - openid
               - view_catalogue
